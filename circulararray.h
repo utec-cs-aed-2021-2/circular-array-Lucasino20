@@ -1,14 +1,6 @@
 #include <iostream>
+#include <heapsort.h>
 using namespace std;
-
-/*template< class T>
-void resize(T *array ,int new_size){
-    int *array2 = new int[new_size];
-    for(int i = 0 ; i < size(); i++)
-        array2[i] = array[i];
-    delete[] array;
-    array = array2;
-}*/
 
 template <class T>
 class CircularArray
@@ -31,7 +23,7 @@ public:
     bool is_empty();
     int size();
     void clear();
-    T &operator[](int);
+    T &operator[](const int);
     void sort();
     bool is_sorted();
     void reverse();
@@ -92,21 +84,6 @@ void CircularArray<T>::push_front(T data){
     else if(size() == capacity){
         int newsize = 0;
         newsize = capacity + 1;
-        //resize(array , newsize);
-        array[newsize] = data;
-
-        }
-}
-
-template <class T>
-void CircularArray<T>::push_back(T data ){
-        if( array == nullptr){
-        array = new int[1];
-        array[1] = data;
-    }
-    else if(size() == capacity){
-        int newsize = 0;
-        newsize = capacity + 1;
         int *array2 = new int[newsize];
         for(int i = 0 ; i < size(); i++)
             array2[i] = array[i];
@@ -114,11 +91,24 @@ void CircularArray<T>::push_back(T data ){
         array = array2;
         array[newsize] = data;
         this->back = array[newsize];
+        }
+}
 
+template <class T>
+void CircularArray<T>::push_back(T data ){
+    if(is_full())
+        throw ("empty");
+
+    if(is_empty()) {
+        front = back = 0;
+    }
+    else
+        back = next(back);
+    array[back] = data;
         }
 
 
-}
+
 
 template <class T>
 void CircularArray<T>::insert(T data , int pos){
@@ -127,15 +117,22 @@ void CircularArray<T>::insert(T data , int pos){
 
 template <class T>
 T CircularArray<T>::pop_front(){
+    if(is_empty()){
+        throw ("empty");
+    }
+    int temp = front;
+    return front = next(temp);
 
 }
 
 
 template<class T>
 T CircularArray<T>::pop_back() {
-    if(array == nullptr || size() == 0){
+    if(is_empty()){
         throw ("empty");
     }
+    int temp = back;
+    return back = prev(temp);
 
 }
 
@@ -146,7 +143,7 @@ bool CircularArray<T>::is_full(){
 
 template <class T>
 bool CircularArray<T>::is_empty(){
-    return (front == back || array == nullptr);
+    return (front == back && back == - 1);
 }
 
 
@@ -160,26 +157,45 @@ template< class T>
 void CircularArray<T>::clear(){
     delete[] array;
 
+    this->array = new T[capacity];
+    this->front = this->back = -1;
+
 }
 
 template<class T>
-T  &CircularArray<T>::operator[](int){
-    
+T  &CircularArray<T>::operator[](const int a){
+    return array[a];
+
 }
 
 template < class T>
 void CircularArray<T>::sort(){
-
+    heap_sort(array , size());
 }
 
 template < class T>
 bool CircularArray<T>::is_sorted(){
-    return true;
+    do {
+        for (int i = 0; i < size(); i++) {
+            if (array[i] > array[i - 1])
+                return true;
+        }
+    } while (false);
+    return false;
 }
 
 
 template < class T>
 void CircularArray<T>::reverse(){
+    T *array2 = new T[capacity];
+
+    for (int i = 0; i < size(); ++i) {
+        for (int j = 0; j > size(); ++j) {
+            array2[j] = array[i];
+        }
+    }
+
+    array = array2;
 
 }
 
